@@ -1,15 +1,12 @@
 package com.ohlavrac;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Scanner;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.common.BitMatrix;
+import com.ohlavrac.models.QrCode;
 
 public class Main {
     public static void main(String[] args) throws WriterException, IOException {
@@ -26,16 +23,17 @@ public class Main {
 
             switch (choice) {
                 case 1:
+                    System.out.print("\033\143");
                     boolean run2 = true;
-                    String data = "";
-                    String fileName = "";
-                    String fileFormat = "";
+                    String data = "UNDEFINED";
+                    String fileName = "UNDEFINED";
+                    String fileFormat = "UNDEFINED";
                     String charset = "UTF-8";
 
                     while (run2) {
-                        System.out.println("1.  Data (information to be recorded in the qr code)  ");
-                        System.out.println("2.  File Name                                         ");
-                        System.out.println("3.  File Format                                       ");
+                        System.out.println("1.  Data (information to be recorded in the qr code)  ["+ data +"]");
+                        System.out.println("2.  File Name                                         ["+ fileName +"]");
+                        System.out.println("3.  File Format                                       ["+ fileFormat +"]");
                         System.out.println("4.  Generate QR CODE");
                         System.out.println("0.  Exit");
 
@@ -44,14 +42,17 @@ public class Main {
 
                         switch (choice2) {
                             case 1:
+                                System.out.print("\033\143");
                                 System.out.print("Link: ");
                                 data = scan.next();
                                 break;
                             case 2:
-                                System.out.print("File Name");
+                                System.out.print("\033\143");   
+                                System.out.print("File Name: ");
                                 fileName = scan.next();
                                 break;
                             case 3:
+                                System.out.print("\033\143");
                                 System.out.println("Chose the file format");
                                 System.out.println("1.  PNG");
                                 System.out.println("2.  JPG");
@@ -62,16 +63,24 @@ public class Main {
                                     fileFormat = "png";
                                 } else if (fileFormatChoice == 2) {
                                     fileFormat = "jpg";
+                                } else {
+                                    fileFormat = "png";
                                 }
 
                                 break;
                             case 4:
-                                System.out.println(data);
-                                System.out.println(fileName);
-                                System.out.println(fileFormat);
-                                System.out.println(charset);
 
-                                run2 = false;
+                                if (data == "UNDEFINED" || fileFormat == "UNDEFINED" || fileName == "UNDEFINED") {
+                                    System.out.println("ERROR");
+                                } else {
+                                    System.out.print("\033\143");
+                                    Path path = FileSystems.getDefault().getPath(fileName+"."+fileFormat);
+
+                                    QrCode qrcode = new QrCode(data, fileName, fileFormat, charset, path, 200, 200);
+                                    qrcode.generateQrCode();
+                                    run2 = false;
+                                }
+                                
                                 break;
                             case 0:
                                 run2 = false;
@@ -91,34 +100,5 @@ public class Main {
                     break;
             }
         }
-
-        /*String data = "google.com";
-        String fileName = "seila.png";
-        String fileFormat = "png";
-        String charset = "UTF-8";
-        Path path = FileSystems.getDefault().getPath(fileName);
-        Map<EncodeHintType, ErrorCorrectionLevel> hashMap = new HashMap<EncodeHintType, ErrorCorrectionLevel>();
-
-        hashMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
-        generateQrCode(data, fileName, fileFormat, charset, hashMap, 300, 300, path);
-        System.out.println("QR-Code Gerado");*/
-    }
-
-    public static void generateQrCode(
-        String data,
-        String fileName,
-        String fileFormat,
-        String charset,
-        Map hashMap,
-        int height,
-        int width,
-        Path path
-    ) throws WriterException, IOException{
-        BitMatrix matrix = new MultiFormatWriter().encode(
-            new String(data.getBytes(charset), charset),
-            BarcodeFormat.QR_CODE, width, height
-        );
-
-        MatrixToImageWriter.writeToPath(matrix, fileFormat, path);
-    }
+    }   
 }

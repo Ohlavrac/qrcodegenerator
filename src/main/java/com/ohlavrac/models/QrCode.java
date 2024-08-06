@@ -57,6 +57,10 @@ public class QrCode {
             width, height
         );
 
+        System.out.println(fileFormat);
+
         MatrixToImageWriter.writeToPath(matrix, fileFormat, path);
+
+        System.out.println("QrCode saved: "+ this.path);
     }
 }
